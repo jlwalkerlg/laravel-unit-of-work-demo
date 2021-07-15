@@ -2,10 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Events\UserRegisteredEvent;
-use App\Models\User;
+use App\Features\Users\RegisterUser\RegisterUserHandler;
+use Faker\Generator;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 
 class RegisterUserCommand extends Command
 {
@@ -23,6 +22,13 @@ class RegisterUserCommand extends Command
      */
     protected $description = 'Register a new user.';
 
+    public function __construct(
+        private RegisterUserHandler $handler,
+        private Generator $faker
+    ) {
+        parent::__construct();
+    }
+
     /**
      * Execute the console command.
      *
@@ -30,13 +36,27 @@ class RegisterUserCommand extends Command
      */
     public function handle()
     {
-        DB::beginTransaction();
+        $command = new \App\Features\Users\RegisterUser\RegisterUserCommand();
+        $command->name = $this->faker->name();
+        $command->email = $this->faker->email();
+        $command->password = $this->faker->password();
 
-        $user = User::factory()->makeOne();
-        $user->save();
-        event(new UserRegisteredEvent($user));
+        $userDto = $this->handler->handle($command);
 
-        DB::commit();
+        $this->output->success('New user registered.');
+
+        $this->output->table(
+            [
+                'ID', 'Name', 'Email'
+            ],
+            [
+                [
+                    $userDto->id,
+                    $userDto->name,
+                    $userDto->email
+                ],
+            ]
+        );
 
         return 0;
     }

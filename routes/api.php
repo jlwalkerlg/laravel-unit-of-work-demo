@@ -1,6 +1,10 @@
 <?php
 
-use App\Http\Controllers\RegisterUserController;
+use App\Features\Users\AddAddress\AddAddressController;
+use App\Features\Users\DeleteAddress\DeleteAddressController;
+use App\Features\Users\GetUserById\GetUserByIdController;
+use App\Features\Users\RegisterUser\RegisterUserController;
+use App\Features\Users\UpdateAddress\UpdateAddressController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,4 +18,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get('/users/{user}', GetUserByIdController::class);
 Route::post('/users', RegisterUserController::class);
+Route::post('/users/{userId}/addresses', AddAddressController::class);
+Route::put('/users/{userId}/addresses/{addressId}', UpdateAddressController::class);
+Route::delete('/users/{userId}/addresses/{addressId}', DeleteAddressController::class);
